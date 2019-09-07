@@ -35,7 +35,7 @@ class DarkModeToggle extends PolymerElement {
         }
 
         .content {
-          min-width: 200px;
+          min-width: 210px;
           overflow: hidden;
         }
 
