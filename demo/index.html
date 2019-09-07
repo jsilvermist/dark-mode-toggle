@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>dark-mode-toggle demo</title>
+
+    <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+
+    <script type="module">
+      import '@polymer/iron-demo-helpers/demo-pages-shared-styles';
+      import '@polymer/iron-demo-helpers/demo-snippet';
+    </script>
+
+    <script type="module" src="../dark-mode-toggle.js"></script>
+
+    <custom-style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+        .container {
+          position: relative;
+          height: 200px;
+        }
+
+        dark-mode-toggle {
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+      </style>
+    </custom-style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>dark-mode-toggle</h3>
+      <demo-snippet>
+        <template>
+          <div class="container">
+            <dark-mode-toggle></dark-mode-toggle>
+          </div>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <script>
+      document.addEventListener('WebComponentsReady', () => {
+
+        const toggle = document.querySelector('dark-mode-toggle');
+        toggle.addEventListener('active-changed', () => {
+          if (toggle.active) {
+            document.body.style.background = '#333';
+            document.body.style.color = '#eee';
+            toggle.updateStyles({
+              '--background-color': '#333',
+              '--primary-text-color': '#eee',
+            });
+          } else {
+            document.body.style.background = '#eee';
+            document.body.style.color = '#333';
+            toggle.updateStyles({
+              '--background-color': '#fff',
+              '--primary-text-color': '#000',
+            });
+          }
+        });
+
+      });
+    </script>
+  </body>
+</html>
