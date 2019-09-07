@@ -3,14 +3,14 @@ import { installMediaQueryWatcher } from 'pwa-helpers/media-query.js';
 import '@polymer/iron-icons/image-icons.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
 import '@polymer/paper-button/paper-button.js';
-import '@polymer/paper-item/paper-item.js';
-import '@polymer/paper-listbox/paper-listbox.js';
 import '@polymer/paper-menu-button/paper-menu-button.js';
 import '@polymer/paper-toggle-button/paper-toggle-button.js';
-import '@polymer/paper-card/paper-card.js';
 
 /**
  * `dark-mode-toggle`
+ * Allow the user to switch between light and dark mode,
+ * or automatically switch themes based on prefers-color-scheme
+ * media query.
  *
  * @customElement dark-mode-toggle
  * @polymer
@@ -49,7 +49,11 @@ class DarkModeToggle extends PolymerElement {
 
         #manualToggle {
           overflow: hidden;
-          transition: all 300ms;
+          transition: height 250ms,
+                      opacity 250ms,
+                      line-height 250ms,
+                      visibility 250ms,
+                      font-size 250ms;
           visibility: visible;
           opacity: 1;
         }
@@ -59,6 +63,7 @@ class DarkModeToggle extends PolymerElement {
           opacity: 0;
           line-height: 0;
           height: 0;
+          font-size: 0.5em;
         }
 
         paper-icon-button {
@@ -66,6 +71,7 @@ class DarkModeToggle extends PolymerElement {
         }
 
         paper-toggle-button {
+          cursor: pointer;
           height: 100%;
           width: 100%;
         }
@@ -133,7 +139,6 @@ class DarkModeToggle extends PolymerElement {
         this.active = matches;
       }
     });
-
   }
 
   _handleAutoChanged() {

@@ -1,6 +1,9 @@
 {
   "name": "dark-mode-toggle",
   "main": "dark-mode-toggle.js",
+  "scripts": {
+    "start": "polymer serve -o"
+  },
   "dependencies": {
     "@polymer/iron-icons": "^3.0.1",
     "@polymer/paper-button": "^3.0.1",
