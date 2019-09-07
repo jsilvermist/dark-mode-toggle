@@ -76,7 +76,7 @@ class DarkModeToggle extends PolymerElement {
           color: var(--sl-dark-mode-toggle-icon-color, currentcolor);
         }
 
-        [icon="device:brightness-auto"] {
+        iron-icon[icon="device:brightness-auto"] {
           margin-right: 4px;
         }
 
