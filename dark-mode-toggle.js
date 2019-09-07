@@ -1,16 +1,16 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element.js';
 import { installMediaQueryWatcher } from 'pwa-helpers/media-query.js';
+import '@polymer/iron-icons/device-icons.js';
 import '@polymer/iron-icons/image-icons.js';
-import '@polymer/paper-icon-button/paper-icon-button.js';
 import '@polymer/paper-button/paper-button.js';
+import '@polymer/paper-icon-button/paper-icon-button.js';
 import '@polymer/paper-menu-button/paper-menu-button.js';
 import '@polymer/paper-toggle-button/paper-toggle-button.js';
 
 /**
  * `dark-mode-toggle`
- * Allow the user to switch between light and dark mode,
- * or automatically switch themes based on prefers-color-scheme
- * media query.
+ * Automatically switch themes based on the `prefers-color-scheme` media query
+ * and also allow the user to manually choose the theme.
  *
  * @customElement dark-mode-toggle
  * @polymer
@@ -47,27 +47,8 @@ class DarkModeToggle extends PolymerElement {
           padding: 0 16px;
         }
 
-        #manualToggle {
-          overflow: hidden;
-          transition: height 250ms,
-                      opacity 250ms,
-                      line-height 250ms,
-                      visibility 250ms,
-                      font-size 250ms;
-          visibility: visible;
-          opacity: 1;
-        }
-
-        #manualToggle.collapse {
-          visibility: collapse;
-          opacity: 0;
-          line-height: 0;
-          height: 0;
-          font-size: 0.5em;
-        }
-
         paper-icon-button {
-          color: #000;
+          color: var(--sl-dark-mode-toggle-trigger-color, #000);
         }
 
         paper-toggle-button {
@@ -82,6 +63,41 @@ class DarkModeToggle extends PolymerElement {
           justify-content: left;
           text-transform: none;
         }
+
+        paper-toggle-button > span,
+        paper-button > span {
+          vertical-align: middle;
+        }
+
+        iron-icon {
+          height: 24px;
+          width: 24px;
+          margin-right: 8px;
+          color: var(--sl-dark-mode-toggle-icon-color, currentcolor);
+        }
+
+        [icon="device:brightness-auto"] {
+          margin-right: 4px;
+        }
+
+        #manualToggle {
+          overflow: hidden;
+          visibility: visible;
+          opacity: 1;
+          transition: visibility 250ms,
+                      opacity 250ms,
+                      height 250ms,
+                      line-height 250ms,
+                      font-size 250ms;
+        }
+
+        #manualToggle.collapse {
+          visibility: collapse;
+          opacity: 0;
+          height: 0;
+          line-height: 0;
+          font-size: 0.5em;
+        }
       </style>
 
       <paper-menu-button
@@ -92,16 +108,22 @@ class DarkModeToggle extends PolymerElement {
           close-animation-config=""
           ignore-select
           allow-outside-scroll>
-        <paper-icon-button slot="dropdown-trigger" icon="[[_icon]]"></paper-icon-button>
+        <paper-icon-button slot="dropdown-trigger" icon="device:brightness-medium"></paper-icon-button>
         <div class="content" slot="dropdown-content">
           <div class="item">
             <h3>Light / Dark Mode</h3>
           </div>
           <div class="item">
-            <paper-toggle-button checked="{{_auto}}">Auto</paper-toggle-button>
+            <paper-toggle-button checked="{{_auto}}">
+              <iron-icon icon="device:brightness-auto"></iron-icon>
+              <span>Auto</span>
+            </paper-toggle-button>
           </div>
           <div class="item" id="manualToggle">
-            <paper-button on-click="_handleSwitchModeClicked">Switch to [[_inactiveText]] Mode</paper-button>
+            <paper-button on-click="_handleSwitchModeClicked">
+              <iron-icon icon="[[_icon]]"></iron-icon>
+              <span>Switch to [[_inactiveText]] Mode</span>
+            </paper-button>
           </div>
         </div>
       </paper-menu-button>
@@ -119,19 +141,28 @@ class DarkModeToggle extends PolymerElement {
         type: Boolean,
         observer: '_handleAutoChanged',
       },
-      _activeText: String,
+      _icon: String,
       _inactiveText: String,
+    };
+  }
+
+  static get defaults() {
+    return {
+      active: false,
+      auto: true,
     };
   }
 
   constructor() {
     super();
 
+    const defaults = this.constructor.defaults;
+
     // Load previous state from local storage
-    const auto = window.localStorage.getItem('dark-mode-auto');
     const active = window.localStorage.getItem('dark-mode-active');
-    this._auto = auto !== null ? JSON.parse(auto) : true;
-    this.active = active !== null ? JSON.parse(active) : false;
+    const auto = window.localStorage.getItem('dark-mode-auto');
+    this.active = active !== null ? JSON.parse(active) : defaults.active;
+    this._auto = auto !== null ? JSON.parse(auto) : defaults.auto;
 
     // Listen for changes to preferred color scheme
     installMediaQueryWatcher('(prefers-color-scheme: dark)', (matches) => {
@@ -142,8 +173,10 @@ class DarkModeToggle extends PolymerElement {
   }
 
   _handleAutoChanged() {
-    // Check for preferred color scheme
-    this.active = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (this._auto) {
+      // Check for preferred color scheme
+      this.active = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
 
     // This is a hack to prevent iron-dropdown from breaking when resizing
     // the dropdown after unhiding the manual toggle button
@@ -159,9 +192,11 @@ class DarkModeToggle extends PolymerElement {
   }
 
   _handleActiveChanged() {
-    this._inactiveText = this.active ? 'Light' : 'Dark';
-    this._activeText = this.active ? 'Dark' : 'Light';
     this._icon = this.active ? 'image:wb-sunny' : 'image:brightness-3';
+    this._inactiveText = this.active ? 'Light' : 'Dark';
+
+    // Save updated state to local storage
+    window.localStorage.setItem('dark-mode-active', this.active);
   }
 
   _handleSwitchModeClicked() {

@@ -46,24 +46,38 @@
       document.addEventListener('WebComponentsReady', () => {
 
         const toggle = document.querySelector('dark-mode-toggle');
-        toggle.addEventListener('active-changed', () => {
-          if (toggle.active) {
-            document.body.style.background = '#333';
-            document.body.style.color = '#eee';
-            toggle.updateStyles({
-              '--background-color': '#333',
-              '--primary-text-color': '#eee',
-            });
-          } else {
-            document.body.style.background = '#eee';
-            document.body.style.color = '#333';
-            toggle.updateStyles({
-              '--background-color': '#fff',
-              '--primary-text-color': '#000',
-            });
-          }
-        });
 
+        function useDarkTheme() {
+          document.body.style.background = '#333';
+          document.body.style.color = '#eee';
+          toggle.updateStyles({
+            '--background-color': '#333',
+            '--primary-text-color': '#eee',
+          });
+        }
+
+        function useLightTheme() {
+          document.body.style.background = '#eee';
+          document.body.style.color = '#333';
+          toggle.updateStyles({
+            '--background-color': '#fff',
+            '--primary-text-color': '#000',
+          });
+        }
+
+        function handleActiveChanged() {
+          if (toggle.active) {
+            useDarkTheme();
+          } else {
+            useLightTheme();
+          }
+        }
+
+        toggle.addEventListener('active-changed', handleActiveChanged);
+        handleActiveChanged();
+
+      }, {
+        once: true,
       });
     </script>
   </body>
