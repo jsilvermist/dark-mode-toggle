@@ -23,20 +23,17 @@ class DarkModeToggle extends PolymerElement {
       <style>
         :host {
           box-sizing: border-box;
-          --paper-menu-button-dropdown-background: var(--background-color);
         }
 
         *, *::before, *::after {
           box-sizing: inherit;
         }
 
-        #menu {
-          user-select: none;
-        }
-
         .content {
-          min-width: 210px;
+          min-width: 220px;
+          font-size: 16px;
           overflow: hidden;
+          user-select: none;
         }
 
         .item {
@@ -48,7 +45,7 @@ class DarkModeToggle extends PolymerElement {
         }
 
         paper-icon-button {
-          color: var(--sl-dark-mode-toggle-trigger-color, #000);
+          color: var(--sl-dark-mode-toggle-trigger-color);
         }
 
         paper-toggle-button {
@@ -73,10 +70,10 @@ class DarkModeToggle extends PolymerElement {
           height: 24px;
           width: 24px;
           margin-right: 8px;
-          color: var(--sl-dark-mode-toggle-icon-color, currentcolor);
+          color: var(--sl-dark-mode-toggle-icon-color);
         }
 
-        iron-icon[icon="device:brightness-auto"] {
+        iron-icon[icon$=":brightness-auto"] {
           margin-right: 4px;
         }
 
@@ -102,7 +99,7 @@ class DarkModeToggle extends PolymerElement {
 
       <paper-menu-button
           id="menu"
-          title="Light / Dark Mode"
+          title="[[_title]]"
           horizontal-align="right"
           open-animation-config=""
           close-animation-config=""
@@ -111,7 +108,7 @@ class DarkModeToggle extends PolymerElement {
         <paper-icon-button slot="dropdown-trigger" icon="device:brightness-medium"></paper-icon-button>
         <div class="content" slot="dropdown-content">
           <div class="item">
-            <h3>Light / Dark Mode</h3>
+            <h3>[[_title]]</h3>
           </div>
           <div class="item">
             <paper-toggle-button checked="{{_auto}}">
@@ -121,7 +118,7 @@ class DarkModeToggle extends PolymerElement {
           </div>
           <div class="item" id="manualToggle">
             <paper-button on-click="_handleSwitchModeClicked">
-              <iron-icon icon="[[_icon]]"></iron-icon>
+              <iron-icon icon="[[_inactiveIcon]]"></iron-icon>
               <span>Switch to [[_inactiveText]] Mode</span>
             </paper-button>
           </div>
@@ -141,12 +138,16 @@ class DarkModeToggle extends PolymerElement {
         type: Boolean,
         observer: '_handleAutoChanged',
       },
-      _icon: String,
+      _inactiveIcon: String,
       _inactiveText: String,
+      _title: {
+        type: String,
+        value: 'Light / Dark Mode',
+      },
     };
   }
 
-  static get defaults() {
+  get defaults() {
     return {
       active: false,
       auto: true,
@@ -156,13 +157,13 @@ class DarkModeToggle extends PolymerElement {
   constructor() {
     super();
 
-    const defaults = this.constructor.defaults;
-
     // Load previous state from local storage
     const active = window.localStorage.getItem('dark-mode-active');
     const auto = window.localStorage.getItem('dark-mode-auto');
-    this.active = active !== null ? JSON.parse(active) : defaults.active;
-    this._auto = auto !== null ? JSON.parse(auto) : defaults.auto;
+
+    // Parse local storage values or fallback to defaults
+    this.active = active !== null ? JSON.parse(active) : this.defaults.active;
+    this._auto = auto !== null ? JSON.parse(auto) : this.defaults.auto;
 
     // Listen for changes to preferred color scheme
     installMediaQueryWatcher('(prefers-color-scheme: dark)', (matches) => {
@@ -174,7 +175,7 @@ class DarkModeToggle extends PolymerElement {
 
   _handleAutoChanged() {
     if (this._auto) {
-      // Check for preferred color scheme
+      // Check for preferred color scheme when activating auto
       this.active = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
 
@@ -192,7 +193,7 @@ class DarkModeToggle extends PolymerElement {
   }
 
   _handleActiveChanged() {
-    this._icon = this.active ? 'image:wb-sunny' : 'image:brightness-3';
+    this._inactiveIcon = this.active ? 'image:wb-sunny' : 'image:brightness-3';
     this._inactiveText = this.active ? 'Light' : 'Dark';
 
     // Save updated state to local storage
